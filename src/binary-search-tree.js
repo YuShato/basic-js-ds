@@ -13,121 +13,121 @@ const {
 
 
 module.exports = class BinarySearchTree {
-  constructor() {
-    this.root = null;
-  }
+  node = null
 
   root() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+    return this.node
   }
 
   add(data) {
-    this.root = addWithin(this.root, data);
+    let currentElement = this.node;
 
-    function addWithin(node, data) {
-      if (!node) {
-        return new Node(data);
+    if (!this.node) {
+      this.node = new Node(data);
+      return;
+    }
+
+    while (currentElement) {
+      if (currentElement.data > data && currentElement.left == null) {
+        currentElement.left = new Node(data);
+        return;
+      } else if (currentElement.data < data && currentElement.right == null) {
+        currentElement.right = new Node(data);
+        return;
       }
 
-      if (node.value === data) {
-        return node;
-      }
-
-      if (data < node.value) {
-        node.left = addWithin(node.left, data);
+      if (currentElement.data > data) {
+        currentElement = currentElement.left;
       } else {
-        node.right = addWithin(node.right, data);
+        currentElement = currentElement.right;
       }
-      return node;
     }
   }
 
-
   has(data) {
-    return searchWithin(this.root, data);
+    return this.find(data) !== null;
+  }
 
-    function searchWithin(node, data) {
-      if (!node) {
-        return false;
+  find(data) {
+    let currentElement = this.node;
+
+    while (currentElement) {
+
+      if (data > currentElement.data) {
+        currentElement = currentElement.right;
+      } else if (data < currentElement.data) {
+        currentElement = currentElement.left;
+      } else if (data == currentElement.data) {
+        return currentElement;
       }
 
-      if (node.value === data) {
-        return true;
-      }
-
-      return data < node.value ?
-        searchWithin(node.left, data) :
-        searchWithin(node.right, data);
     }
+    return null;
   }
 
   remove(data) {
-    this.root = removeNode(this.root, data);
+    if (this.has(data)) {
+      this.node = removeWithin(this.node, data);
 
-    function removeNode(node, data) {
-      if (!node) {
-        return null;
-      }
+      function removeWithin(node, data) {
+        if (node.data == data) {
+          if (node.left == null && node.right == null) {
+            return null;
+          } else if (node.left == null) {
+            node = node.right;
+            return node;
+          } else if (node.right == null) {
+            node = node.left;
+            return node;
+          } else {
+            if (node.right.left === null) {
+              node.data = node.right.data;
+              node.right = node.right.right;
+              return node;
+            }
 
-      if (data < node.value) {
-        node.left = removeNode(node.left, data);
-        return node;
-      } else if (node.value < data) {
-        node.right = removeNode(node.right, data);
-        return node;
-      } else {
-        if (!node.left && !node.right) {
-          return null;
+            let removedElement = minFromLeft(node.right);
+            node = removeWithin(node, removedElement.data);
+            node.data = removedElement.data;
+
+            function minFromLeft(node) {
+              while (node.left) {
+                node = node.left;
+              }
+              return node;
+            }
+
+            return node;
+          }
         }
-
-        if (!node.left) {
-          node = node.right;
+        if (node.data < data) {
+          node.right = removeWithin(node.right, data);
+          return node;
+        } else {
+          node.left = removeWithin(node.left, data);
           return node;
         }
-
-        if (!node.right) {
-          node = node.left;
-          return node;
-        }
-
-        let minFromRight = node.right;
-        while (minFromRight.left) {
-          minFromRight = minFromRight.left;
-        }
-        node.value = minFromRight.value;
-
-        node.right = removeNode(node.right, minFromRight.value);
-
-        return node;
       }
     }
   }
 
-
   min() {
-    if (!this.root) {
-      return;
-    }
+    let currentElement = this.node;
 
-    let node = this.root;
-    while (node.left) {
-      node = node.left;
+    while (currentElement.left) {
+      currentElement = currentElement.left;
     }
-
-    return node.value;
+    
+    return currentElement.data;
   }
 
   max() {
-    if (!this.root) {
-      return;
+    let currentElement = this.node;
+
+    while (currentElement.right) {
+      currentElement = currentElement.right;
     }
 
-    let node = this.root;
-    while (node.right) {
-      node = node.right;
-    }
-
-    return node.value;
+    return currentElement.data;
   }
 }
